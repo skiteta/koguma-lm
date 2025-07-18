@@ -1,0 +1,80 @@
+# Training Configuration
+
+training:
+  # Basic settings
+  output_dir: "./outputs"
+  num_train_epochs: 3
+  per_device_train_batch_size: 32  # For RTX A5500 24GB
+  per_device_eval_batch_size: 64
+  gradient_accumulation_steps: 4
+  gradient_checkpointing: true
+  
+  # Learning rate
+  learning_rate: 5e-4
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.1
+  weight_decay: 0.01
+  
+  # Optimization
+  optim: "adamw_torch"
+  adam_beta1: 0.9
+  adam_beta2: 0.999
+  adam_epsilon: 1e-8
+  max_grad_norm: 1.0
+  
+  # Mixed precision
+  fp16: true
+  bf16: false  # Use fp16 for RTX A5500
+  
+  # Logging
+  logging_steps: 50
+  save_steps: 1000
+  eval_steps: 500
+  save_total_limit: 3
+  load_best_model_at_end: true
+  metric_for_best_model: "eval_loss"
+  
+  # Distributed training
+  ddp_find_unused_parameters: false
+  
+  # Memory optimization
+  gradient_checkpointing_kwargs:
+    use_reentrant: false
+
+distillation:
+  # Knowledge distillation settings
+  temperature: 5.0
+  alpha: 0.7  # Weight for distillation loss
+  
+  # Data generation settings
+  num_generations_per_teacher: 100000
+  max_length: 2048
+  min_length: 128
+  
+  # Quality filtering
+  min_confidence_score: 0.8
+  diversity_penalty: 0.1
+  
+  # Multi-teacher settings
+  teacher_ensemble_method: "weighted_average"
+  conflict_resolution: "confidence_based"
+
+data:
+  # Dataset paths
+  pretrain_data:
+    - "data/processed/wikipedia_ja.jsonl"
+    - "data/processed/cc100_ja_filtered.jsonl"
+    - "data/processed/aozora_bunko.jsonl"
+  
+  # Distillation data
+  distill_data_path: "data/processed/distillation"
+  
+  # Processing settings
+  block_size: 2048
+  preprocessing_num_workers: 8
+  
+  # Data filtering
+  min_text_length: 100
+  max_text_length: 32768
+  language_filter: "ja"
+  quality_threshold: 0.7
